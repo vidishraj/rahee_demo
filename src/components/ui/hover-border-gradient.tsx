@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
@@ -37,7 +37,6 @@ export function HoverBorderGradient({
 
   const [rotationCount, setRotationCount] = useState(0);
   const [isInitialGlow, setIsInitialGlow] = useState(true);
-  const [pulsationCount, setPulsationCount] = useState(0);
   const [cycleCount, setCycleCount] = useState(0);
   
   // Color sequence: Intense neon colors 
@@ -146,7 +145,7 @@ export function HoverBorderGradient({
   }, [hovered, duration, clockwise, isInitialGlow, cycleCount]);
   return (
     <Tag
-      onMouseEnter={(event: React.MouseEvent<HTMLDivElement>) => {
+      onMouseEnter={() => {
         setHovered(true);
       }}
       onMouseLeave={() => setHovered(false)}

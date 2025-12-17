@@ -1,5 +1,4 @@
 import { HoverBorderGradientDemo } from "./components/ui/main";
-import React from "react";
 
 function App() {
   return (
