@@ -38,34 +38,39 @@ export function HoverBorderGradient({
   const [rotationCount, setRotationCount] = useState(0);
   const [isInitialGlow, setIsInitialGlow] = useState(true);
   const [pulsationCount, setPulsationCount] = useState(0);
+  const [cycleCount, setCycleCount] = useState(0);
   
-  // Color sequence: White -> Red -> Blue -> Green -> Purple (repeat) 
+  // Color sequence: Intense neon colors 
   const getColorsForRotation = (count: number) => {
-    const cycle = count % 5;
+    const cycle = count % 6;
     switch(cycle) {
       case 0: return {
-        main: "hsl(0, 0%, 100%)", // White
-        light: "hsl(0, 0%, 90%)" // Light white
+        main: "hsl(0, 0%, 100%)", // Pure White
+        light: "hsl(0, 0%, 85%)" // Light white
       };
       case 1: return {
-        main: "hsl(0, 100%, 50%)", // Bright Red
-        light: "hsl(0, 100%, 70%)" // Light red
+        main: "hsl(0, 100%, 60%)", // Intense Red
+        light: "hsl(0, 100%, 80%)" // Bright red
       };
       case 2: return {
-        main: "hsl(240, 100%, 50%)", // Bright Blue
-        light: "hsl(240, 100%, 70%)" // Light blue
+        main: "hsl(280, 100%, 60%)", // Electric Purple
+        light: "hsl(280, 100%, 80%)" // Bright purple
       };
       case 3: return {
-        main: "hsl(120, 100%, 40%)", // Bright Green
-        light: "hsl(120, 100%, 60%)" // Light green
+        main: "hsl(240, 100%, 60%)", // Electric Blue
+        light: "hsl(240, 100%, 80%)" // Bright blue
       };
       case 4: return {
-        main: "hsl(280, 100%, 50%)", // Bright Purple
-        light: "hsl(280, 100%, 70%)" // Light purple
+        main: "hsl(180, 100%, 50%)", // Electric Cyan
+        light: "hsl(180, 100%, 70%)" // Bright cyan
+      };
+      case 5: return {
+        main: "hsl(120, 100%, 50%)", // Electric Green
+        light: "hsl(120, 100%, 70%)" // Bright green
       };
       default: return {
         main: "hsl(0, 0%, 100%)",
-        light: "hsl(0, 0%, 90%)"
+        light: "hsl(0, 0%, 85%)"
       };
     }
   };
@@ -94,30 +99,51 @@ export function HoverBorderGradient({
   useEffect(() => {
     if (!hovered) {
       if (isInitialGlow) {
-        // Transition to color rotation immediately after loading animation completes (3 seconds)
+        // Transition to color rotation immediately after loading animation completes (2.5 seconds)
         const transitionTimer = setTimeout(() => {
           setIsInitialGlow(false);
           setRotationCount(0); // Reset to start with white
-        }, 3000); // Start rotation right after loading completes
+        }, 2500); // Start rotation right after loading completes
         
         return () => clearTimeout(transitionTimer);
       } else {
         // Start intervals immediately when transitioning out of initial glow
-        const directionInterval = setInterval(() => {
-          setDirection((prevState) => rotateDirection(prevState));
-        }, duration * 1000);
+        let directionInterval: ReturnType<typeof setInterval>;
+        let colorInterval: ReturnType<typeof setInterval>;
         
-        const colorInterval = setInterval(() => {
-          setRotationCount(count => count + 1);
-        }, 300);
+        // Small delay to ensure smooth transition timing
+        const startTimeout = setTimeout(() => {
+          directionInterval = setInterval(() => {
+            setDirection((prevState) => rotateDirection(prevState));
+          }, duration * 1000);
+          
+          colorInterval = setInterval(() => {
+            setRotationCount(count => {
+              const newCount = count + 1;
+              // After 5 complete color rotations (30 total changes: 6 colors * 5 cycles), restart the pattern
+              if (newCount >= 30) {
+                setTimeout(() => {
+                  setIsInitialGlow(true);
+                  setCycleCount(prev => prev + 1);
+                }, 100); // Small delay to ensure smooth transition
+                return 0;
+              }
+              return newCount;
+            });
+          }, 300);
+          
+          // Start first rotation immediately
+          setRotationCount(1);
+        }, 50); // Small delay for better timing sync
         
         return () => {
-          clearInterval(directionInterval);
-          clearInterval(colorInterval);
+          clearTimeout(startTimeout);
+          if (directionInterval) clearInterval(directionInterval);
+          if (colorInterval) clearInterval(colorInterval);
         };
       }
     }
-  }, [hovered, duration, clockwise, isInitialGlow]);
+  }, [hovered, duration, clockwise, isInitialGlow, cycleCount]);
   return (
     <Tag
       onMouseEnter={(event: React.MouseEvent<HTMLDivElement>) => {
@@ -154,26 +180,30 @@ export function HoverBorderGradient({
         animate={{
           background: isInitialGlow 
             ? [
-                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 5deg, white 355deg, transparent 360deg)",
-                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 15deg, white 345deg, transparent 360deg)",
-                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 25deg, white 335deg, transparent 360deg)",
-                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 40deg, white 320deg, transparent 360deg)",
-                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 60deg, white 300deg, transparent 360deg)",
-                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 80deg, white 280deg, transparent 360deg)",
-                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 105deg, white 255deg, transparent 360deg)",
-                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 130deg, white 230deg, transparent 360deg)",
-                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 160deg, white 200deg, transparent 360deg)",
-                "conic-gradient(from 270deg at 50% 50%, white 0deg, white 360deg)",
-                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 5deg, white 355deg, transparent 360deg)",
-                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 15deg, white 345deg, transparent 360deg)",
-                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 25deg, white 335deg, transparent 360deg)",
-                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 40deg, white 320deg, transparent 360deg)",
-                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 60deg, white 300deg, transparent 360deg)",
-                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 80deg, white 280deg, transparent 360deg)",
-                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 105deg, white 255deg, transparent 360deg)",
-                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 130deg, white 230deg, transparent 360deg)",
-                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 160deg, white 200deg, transparent 360deg)",
-                "conic-gradient(from 90deg at 50% 50%, white 0deg, white 360deg)"
+                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, rgba(120, 160, 255, 0.9) 3deg, rgba(120, 160, 255, 0.9) 357deg, transparent 360deg)",
+                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, rgba(150, 180, 255, 0.95) 8deg, rgba(150, 180, 255, 0.95) 352deg, transparent 360deg)",
+                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, rgba(180, 200, 255, 1) 15deg, rgba(180, 200, 255, 1) 345deg, transparent 360deg)",
+                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, rgba(210, 225, 255, 1) 25deg, rgba(210, 225, 255, 1) 335deg, transparent 360deg)",
+                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, rgba(240, 245, 255, 1) 35deg, rgba(240, 245, 255, 1) 325deg, transparent 360deg)",
+                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 50deg, white 310deg, transparent 360deg)",
+                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 70deg, white 290deg, transparent 360deg)",
+                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 90deg, white 270deg, transparent 360deg)",
+                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 115deg, white 245deg, transparent 360deg)",
+                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 140deg, white 220deg, transparent 360deg)",
+                "conic-gradient(from 270deg at 50% 50%, transparent 0deg, white 170deg, white 190deg, transparent 360deg)",
+                "conic-gradient(from 270deg at 50% 50%, rgba(255, 255, 255, 0.95) 0deg, white 180deg, rgba(255, 255, 255, 0.95) 360deg)",
+                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, rgba(120, 160, 255, 0.9) 3deg, rgba(120, 160, 255, 0.9) 357deg, transparent 360deg)",
+                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, rgba(150, 180, 255, 0.95) 8deg, rgba(150, 180, 255, 0.95) 352deg, transparent 360deg)",
+                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, rgba(180, 200, 255, 1) 15deg, rgba(180, 200, 255, 1) 345deg, transparent 360deg)",
+                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, rgba(210, 225, 255, 1) 25deg, rgba(210, 225, 255, 1) 335deg, transparent 360deg)",
+                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, rgba(240, 245, 255, 1) 35deg, rgba(240, 245, 255, 1) 325deg, transparent 360deg)",
+                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 50deg, white 310deg, transparent 360deg)",
+                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 70deg, white 290deg, transparent 360deg)",
+                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 90deg, white 270deg, transparent 360deg)",
+                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 115deg, white 245deg, transparent 360deg)",
+                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 140deg, white 220deg, transparent 360deg)",
+                "conic-gradient(from 90deg at 50% 50%, transparent 0deg, white 170deg, white 190deg, transparent 360deg)",
+                "conic-gradient(from 90deg at 50% 50%, rgba(255, 255, 255, 0.95) 0deg, white 180deg, rgba(255, 255, 255, 0.95) 360deg)"
               ]
             : (hovered
                 ? [movingMap[direction], highlight]
@@ -181,7 +211,7 @@ export function HoverBorderGradient({
         }}
         transition={{ 
           ease: isInitialGlow ? "easeInOut" : "linear", 
-          duration: isInitialGlow ? 3.0 : (duration ?? 0.75),
+          duration: isInitialGlow ? 2.5 : (duration ?? 0.75),
           repeat: isInitialGlow ? 0 : undefined,
           repeatType: isInitialGlow ? "loop" : undefined
         }}
