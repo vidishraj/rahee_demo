@@ -6,7 +6,7 @@ function App() {
       className="min-h-screen w-screen flex flex-col items-center justify-center gap-8"
       style={{ backgroundColor: "#121212" }}
     >
-      Y <HoverBorderGradientDemo />
+      <HoverBorderGradientDemo />
     </div>
   );
 }
