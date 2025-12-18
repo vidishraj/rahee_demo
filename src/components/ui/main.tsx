@@ -7,7 +7,7 @@ export function HoverBorderGradientDemo() {
       <HoverBorderGradient
         containerClassName=""
         as="button"
-        className="dark:bg-black bg-white text-black dark:text-white flex items-center space-x-2"
+        className="dark:bg-black bg-black text-white flex items-center space-x-2"
       >
         <span>Glowwwy</span>
       </HoverBorderGradient>
