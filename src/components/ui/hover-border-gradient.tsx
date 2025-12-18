@@ -37,7 +37,6 @@ export function HoverBorderGradient({
 
   const [rotationCount, setRotationCount] = useState(1); // Start with red (not white)
   const [isInitialGlow, setIsInitialGlow] = useState(false); // Start with rotating colors
-  const [cycleCount, setCycleCount] = useState(0);
   
   // Color sequence: Intense neon colors 
   const getColorsForRotation = (count: number) => {
